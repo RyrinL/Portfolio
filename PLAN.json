@@ -1,0 +1,226 @@
+{
+  "_note": "Portfolio redesign plan. Read this at the start of a fresh session before touching any file.",
+  "_date": "2026-11-11",
+
+  "current_state": {
+    "files": ["index.html", "style.css", "main.js", "content.js"],
+    "stack": "Vanilla HTML/CSS/JS — no bundler, no framework",
+    "fonts_loaded": ["EB Garamond 500/600/italic", "Inter 400/500", "JetBrains Mono 400/500", "Noto Sans JP 700"],
+    "layout": "Sticky left .side + scrolling right main — kadet-style columns already in place",
+    "existing_features": [
+      "Live clock (Asia/Shanghai timezone)",
+      "Typed role cycling",
+      "Glitch effect on hero name and kana",
+      "Grain overlay (.grain)",
+      "Void element (.void) — purpose unclear, needs wiring",
+      "Custom cursor (.cursor)",
+      "Scroll progress bar (.progress)",
+      "Project index on left panel (.pindex) with hover thumbnail",
+      "Reveal-on-scroll (.reveal class)",
+      "Stats count-up",
+      "Copy email button",
+      "content.js data layer (all text separate from markup)"
+    ],
+    "already_themed": "非存在 (hi-sonzai) kana already in side-foot — nonexistence theme was always the intent",
+    "todos_in_content_js": ["name", "email", "resumeUrl", "project images", "project links", "experience dates"]
+  },
+
+  "theme": {
+    "source": "The Nonexistence of you AND me — Nino Games (Nino Cho, Korean indie dev)",
+    "tone": "Absence, longing, the space between two people. Literary, slow, melancholy-warm.",
+    "visual_language": [
+      "Near-black backgrounds with barely-there texture (grain already present)",
+      "Two coexisting tones: cold void blue-black + warm amber/rust — the YOU and ME split",
+      "Sparse negative space — emptiness IS the design",
+      "Serif (Garamond) for identity/name, mono (JetBrains) for data/stack, sans (Inter) for body",
+      "Partial reveals — things that exist incompletely (opacity 0.4 resting, 1 on hover)",
+      "Glitch as grief — the name glitches not for style but as a 'you are not fully here' metaphor",
+      "The word EXIST / EXISTS / NONEXISTENT as a recurring motif in UI copy",
+      "Contact section copy already set: 'Let's build something that exists.' — keep this"
+    ],
+    "color_tokens": {
+      "--bg":          "#0a0809",
+      "--bg-raised":   "#110e10",
+      "--bg-surface":  "#1a1519",
+      "--text":        "#e8ddd5",
+      "--text-muted":  "#6b5f5a",
+      "--text-ghost":  "#2e2628",
+      "--you":         "#c9704a",
+      "--me":          "#4a6bc9",
+      "--you-dim":     "rgba(201,112,74,0.15)",
+      "--me-dim":      "rgba(74,107,201,0.15)",
+      "--hairline":    "rgba(232,221,213,0.08)",
+      "--grain-opacity": "0.035"
+    },
+    "easing": {
+      "--ease-out":    "cubic-bezier(0.22, 1, 0.36, 1)",
+      "--ease-inout":  "cubic-bezier(0.7, 0, 0.3, 1)",
+      "--ease-elastic":"cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "--dur-fast":    "0.3s",
+      "--dur-mid":     "0.55s",
+      "--dur-slow":    "0.9s"
+    }
+  },
+
+  "re_findings": {
+    "kadet_dev_workshop": {
+      "stack": "Next.js App Router, CSS Modules, no Tailwind, Cloudflare Analytics",
+      "font": "Cereal (Airbnb proprietary) — use Inter or DM Sans",
+      "mechanics_to_steal": {
+        "css_token_system": {
+          "desc": "--ts scalar multiplies all type sizes for clean responsive scaling",
+          "impl": "Add --ts: 1 to :root. All font-size: calc(VALpx * var(--ts)). Reduce --ts at breakpoints."
+        },
+        "collapsible_columns": {
+          "desc": "Three .col panels: open = ~1000px, closed = 96px showing rotated tab label",
+          "transition": "--share 0.55s cubic-bezier(0.22, 1, 0.36, 1)",
+          "skip": "Already have sticky left + scrolling right — adapt only if adding Notebook/About tabs later"
+        },
+        "deck_scroll": {
+          "desc": "ol.sheets stacked 4×100vh, col__inner overflow:hidden, navigation = programmatic scrollTop",
+          "impl": "Project panels are already full-screen. Wire deck-nav prev/next to scrollTop animation on #projectList wrapper."
+        },
+        "index_hover_preview": {
+          "desc": "Left panel project numbers — hover shows preview image above the list",
+          "impl": "Already have .pindex with .pi-thumb — extend to show project screenshot on li:hover"
+        },
+        "96px_collapsed_tab": {
+          "desc": "writing-mode: vertical-rl + rotate(180deg) for rotated tab text in 96px column"
+        }
+      }
+    },
+    "dennissnellenberg_com": {
+      "stack": "jQuery + GSAP 3.9.1 + ScrollTrigger + Barba.js + Locomotive Scroll + Kirby CMS",
+      "font": "PP Neue Montreal (renamed Dennis Sans) — use Satoshi (free) or keep Inter",
+      "mechanics_to_steal": {
+        "oversized_horizontal_name": {
+          "desc": "h1 at 288px, 2780px wide. Wrapped in div with data-scroll-direction=horizontal data-scroll-speed=4. Locomotive Scroll drives it left on page scroll.",
+          "impl_vanilla": "On window scroll, read scrollY, apply transform: translateX(-scrollY * 0.4) to .hero-name wrapper. Clamp to avoid overscroll. Duplicate text node for seamless loop.",
+          "our_version": "Use name as oversized h1, overlay it behind the left panel. It slides right-to-left as user scrolls into projects. Font: EB Garamond 600 italic for identity feel."
+        },
+        "preloader": {
+          "desc": "Multilingual hello words cycle, then fade out",
+          "our_version": "Cycle thematic words instead: absent — present — forgotten — remembered — nonexistent — here. Last word: HERE. Then fade. Tie to sessionStorage so it only plays once per session."
+        },
+        "mouse_follow_image": {
+          "desc": "position:fixed 475x475 card centered on cursor. GSAP lerps a bounce wrapper. Blue View pill follows separately.",
+          "impl": "requestAnimationFrame lerp: target.x += (mouse.x - target.x) * 0.08. Card shows project screenshot. Pill uses accent color --you (#c9704a). Show on .pindex hover OR project list hover."
+        },
+        "rounded_div_section_break": {
+          "desc": "overflow:hidden wrapper + border-radius:50% div at 2880px wide = curved section edge",
+          "impl": "Add .arc-break divs between sections. Dark-to-light and light-to-dark transitions.",
+          "our_version": "Use between projects section and about section. Color shift: deep void black curves into slightly lighter bg-raised."
+        },
+        "line_mask_reveal": {
+          "desc": "span.span-line { overflow:hidden } + span.span-line-inner { transform: translateY(110%) } → 0 on IntersectionObserver",
+          "impl": "Already have .reveal class — upgrade it to split-line mask. Split h2/h3 by line using a JS splitter on DOMContentLoaded.",
+          "our_version": "Apply to section headings. Stagger delay per line via CSS --d var."
+        },
+        "magnetic_buttons": {
+          "desc": "mousemove proximity detection, GSAP lerp button toward cursor",
+          "impl_vanilla": "On mousemove, check if within threshold (100px). Lerp button translate toward cursor at 0.3 strength. Reset on mouseleave.",
+          "apply_to": ["Copy email button", "Resume link", "Social links", "Back to top"]
+        },
+        "work_list_typography": {
+          "desc": "Big project names (100px+) full-width, category tag right-aligned, hairline separator",
+          "our_version": "Use this pattern for the left-panel project index. Name in Garamond, stack tags in mono at 11px uppercase."
+        }
+      }
+    }
+  },
+
+  "architecture": {
+    "layout": {
+      "frame": "display:flex, row, 100vw × 100vh, overflow: hidden on x",
+      "side": "position:sticky, top:0, width: clamp(280px, 30vw, 420px), height:100vh, overflow:hidden, flex col",
+      "main": "flex:1, overflow-y:auto, overflow-x:hidden, scroll-behavior:smooth"
+    },
+    "sections_order": [
+      { "id": "hero-name-track", "desc": "Full-width oversized name that scrolls horizontally — behind side panel overlap" },
+      { "id": "projects", "desc": "Deck of full-screen panels, one per project" },
+      { "id": "arc-break-1", "desc": "Rounded div transition — void into about" },
+      { "id": "about", "desc": "Bio + stats + skills" },
+      { "id": "experience", "desc": "Timeline" },
+      { "id": "arc-break-2", "desc": "Rounded div transition — into contact" },
+      { "id": "contact", "desc": "Dark footer-style, 'Let's build something that exists.'" }
+    ]
+  },
+
+  "new_components_to_build": [
+    {
+      "name": "Preloader",
+      "file": "main.js — add preloader() fn, call before init()",
+      "words": ["absent", "present", "forgotten", "remembered", "nonexistent", "here"],
+      "behavior": "Each word fades in translateY(0) from translateY(20px), then fades out. Last word 'here' holds 600ms. Whole screen fades out. sessionStorage flag prevents replay."
+    },
+    {
+      "name": "Oversized scrolling name",
+      "file": "index.html + style.css + main.js",
+      "html": "<div class='name-track' aria-hidden='true'><span class='name-scroll'>YOUR NAME — YOUR NAME — </span></div>",
+      "css": ".name-track { position:fixed; bottom: 15vh; left:0; width:100%; overflow:hidden; pointer-events:none; z-index:0 } .name-scroll { display:block; white-space:nowrap; font: 600 italic clamp(80px, 14vw, 180px)/1 'EB Garamond', serif; color: var(--text-ghost); will-change: transform }",
+      "js": "On scroll event: nameScroll.style.transform = `translateX(${-window.scrollY * 0.25}px)`"
+    },
+    {
+      "name": "Mouse-follow project card",
+      "file": "main.js + style.css",
+      "html": "<div class='hover-card' id='hoverCard' aria-hidden='true'><div class='hover-card-img'></div><span class='hover-pill'>view</span></div>",
+      "css": ".hover-card { position:fixed; width:380px; height:240px; pointer-events:none; z-index:999; opacity:0; transition:opacity 0.3s; transform:translate(-50%,-50%) } .hover-pill { position:fixed; background:var(--you); color:#fff; border-radius:99px; padding:8px 20px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; pointer-events:none; z-index:1000; opacity:0; transform:translate(-50%,-50%) }",
+      "js": "rAF lerp card position. Show on .pindex li hover, hide on mouseleave. Set card bg-image to project.image."
+    },
+    {
+      "name": "Arc section breaks",
+      "file": "index.html + style.css",
+      "html": "<div class='arc-break arc-break--down'><div class='arc-div'></div></div>",
+      "css": ".arc-break { overflow:hidden; height:100px; position:relative } .arc-break--down .arc-div { width:200vw; height:200vw; border-radius:50%; position:absolute; left:50%; transform:translateX(-50%); bottom:0; background:var(--bg-raised) } .arc-break--up .arc-div { top:0 }"
+    },
+    {
+      "name": "Line-mask text reveal",
+      "file": "main.js — add splitLines() fn, style.css — add .line-wrap/.line-inner",
+      "css": ".line-wrap { overflow:hidden; display:block } .line-inner { display:block; transform:translateY(110%); opacity:0; transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur-slow) } .line-inner.in { transform:translateY(0); opacity:1 }",
+      "js": "IntersectionObserver on .reveal-lines elements. On intersect, add .in to each .line-inner with staggered delay."
+    },
+    {
+      "name": "Magnetic buttons",
+      "file": "main.js — add magneticButtons() fn",
+      "apply_to": ".copy-btn, .email-link, #resumeBtn, .socials a",
+      "js": "mousemove: if dist < 80px, translate toward cursor at 0.35 strength. mouseleave: reset to (0,0) with transition."
+    },
+    {
+      "name": "YOU/ME duality accent",
+      "desc": "Project cards use --you accent. About/experience use --me accent. This creates the split without being heavy-handed.",
+      "impl": "Add data-accent='you' or data-accent='me' to sections. CSS: [data-accent='you'] .accent-el { color: var(--you) } etc."
+    }
+  ],
+
+  "font_decision": {
+    "keep": ["EB Garamond — identity, hero name, section titles", "JetBrains Mono — stack tags, code, small data labels", "Inter — body text, nav"],
+    "add": "Nothing. Three fonts is the limit. Remove Noto Sans JP — 非存在 renders fine in system Japanese fonts with a fallback stack.",
+    "noto_sans_jp_replacement": "font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif on .kana element only"
+  },
+
+  "implementation_order": [
+    "1. Update CSS tokens (colors, easing, spacing vars) in style.css — no visible change, just variables",
+    "2. Add preloader HTML+CSS+JS — first thing user sees",
+    "3. Add oversized name track — purely decorative, z-index behind content",
+    "4. Upgrade .reveal to line-mask reveal — improves existing animations",
+    "5. Add arc-break divs between sections in index.html",
+    "6. Wire mouse-follow card to .pindex hover",
+    "7. Add magnetic behavior to buttons",
+    "8. YOU/ME accent split",
+    "9. Fill content.js TODOs (name, email, images, links)"
+  ],
+
+  "do_not_change": [
+    "content.js data layer structure — it works, keep the shape",
+    "The layout split (side + main) — it's already the right architecture",
+    "The .reveal class name — just upgrade its behavior",
+    "The clock, typed roles, copy-email, stats countup — these all work"
+  ],
+
+  "open_questions_for_mikka": [
+    "Name and email to fill content.js TODOs",
+    "Do you have project screenshots? Path: H:/work/Portofolio/img/ (create folder)",
+    "Resume PDF link?",
+    "Should the preloader play every visit or once per session?"
+  ]
+}

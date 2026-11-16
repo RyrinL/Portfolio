@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio</title>
+  <meta name="description" content="Software developer portfolio" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0a0809" />
+  <script>
+    // Flag JS, and decide before first paint whether the preloader plays (once per session).
+    (function () {
+      var root = document.documentElement, seen = false;
+      root.classList.add("js");
+      try { seen = sessionStorage.getItem("preloaded") === "1"; } catch (e) {}
+      if (seen || matchMedia("(prefers-reduced-motion: reduce)").matches) root.classList.add("no-pre");
+      else root.classList.add("loading");
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=9" />
+</head>
+<body>
+  <div class="preloader" id="preloader" aria-hidden="true"><span class="pre-word" id="preWord"></span></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="void" id="void" aria-hidden="true"></div>
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <!-- Oversized name drifting behind everything -->
+  <div class="name-track" aria-hidden="true"><span class="name-scroll" id="nameScroll"></span></div>
+
+  <!-- Follows the cursor while hovering the project index -->
+  <div class="hover-card" id="hoverCard" aria-hidden="true"><div class="hover-card-img" id="hoverCardImg"></div></div>
+  <span class="hover-pill" id="hoverPill" aria-hidden="true">view</span>
+
+  <div class="frame">
+    <!-- LEFT — fixed side -->
+    <aside class="side">
+      <p class="clock" id="clock" aria-hidden="true"></p>
+
+      <header class="hero">
+        <h1 class="hero-name glitch" id="heroName"></h1>
+        <p class="hero-role"><span id="typed"></span><span class="caret" aria-hidden="true"></span></p>
+        <p class="hero-tagline" id="tagline"></p>
+        <p class="badge" id="badge" hidden><span class="dot"></span><span id="badgeText">open to work</span></p>
+      </header>
+
+      <nav class="menu" aria-label="Main">
+        <a href="#projects" style="--i: 0"><span class="menu-num">01</span>Projects</a>
+        <a href="#about" style="--i: 1"><span class="menu-num">02</span>About</a>
+        <a href="#experience" style="--i: 2"><span class="menu-num">03</span>Experience</a>
+        <a href="#contact" style="--i: 3"><span class="menu-num">04</span>Contact</a>
+        <a id="resumeBtn" style="--i: 4" hidden target="_blank" rel="noopener"><span class="menu-num">++</span>Résumé</a>
+      </nav>
+
+      <!-- Project index — numbers at the panel edge, names on hover -->
+      <nav class="pindex" id="pindex" aria-label="Projects">
+        <div class="pi-list" id="piList"></div>
+      </nav>
+
+      <div class="side-foot">
+        <ul class="socials" id="socials"></ul>
+        <p class="kana glitch" data-text="非存在" lang="ja" aria-hidden="true">非存在</p>
+      </div>
+    </aside>
+
+    <!-- RIGHT — scrolling content -->
+    <main id="top">
+      <section class="projects" id="projects" data-accent="you">
+        <h2 class="sr-only">Projects</h2>
+        <div id="projectList"></div>
+      </section>
+
+      <!-- void curves into the raised tone -->
+      <div class="arc-break arc-break--in" aria-hidden="true"><div class="arc-div"></div></div>
+
+      <section class="section raised" id="about" data-accent="me">
+        <p class="eyebrow reveal">02 — About</p>
+        <h2 class="reveal-lines" style="--d: 90ms">A bit about me.</h2>
+        <div id="aboutText"></div>
+        <p class="location reveal" id="location"></p>
+        <div class="stats" id="stats"></div>
+        <div class="skills" id="skills"></div>
+      </section>
+
+      <section class="section raised" id="experience" data-accent="me">
+        <p class="eyebrow reveal">03 — Experience</p>
+        <h2 class="reveal-lines" style="--d: 90ms">Where I've been.</h2>
+        <ol class="timeline" id="timeline"></ol>
+      </section>
+
+      <!-- and back out into the void -->
+      <div class="arc-break arc-break--out" aria-hidden="true"><div class="arc-div"></div></div>
+
+      <section class="section contact" id="contact" data-accent="you">
+        <p class="eyebrow reveal">04 — Contact</p>
+        <h2 class="contact-title reveal-lines" style="--d: 90ms">Let's build something<br />that exists.</h2>
+        <div class="contact-row reveal">
+          <a class="email-link" id="emailLink"></a>
+          <button class="copy-btn" id="copyEmail" type="button">copy</button>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span id="footerName"></span>
+        <a href="#top">back to top ↑</a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Bump ?v= when you change a file and a browser keeps showing the old one -->
+  <script src="content.js?v=9"></script>
+  <script src="main.js?v=9"></script>
+</body>
+</html>

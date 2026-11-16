@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Portfolio</title>
+  <meta name="description" content="Software developer portfolio" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0a0809" />
+  <script>
+    // Flag JS and decide the first screen before first paint.
+    (function () {
+      var root = document.documentElement;
+      root.classList.add("js");
+      try {
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) root.classList.add("reduced");
+        // Returning visitor? Skip straight past sleep + sign-in.
+        var booted = localStorage.getItem("nonos.booted") === "1";
+        root.setAttribute("data-state", booted ? "desktop" : "sleep");
+      } catch (e) {
+        root.setAttribute("data-state", "sleep");
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+  <!-- ambient layers -->
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+  <!-- ================= OS ================= -->
+  <div class="os" id="os">
+
+    <!-- SLEEP -->
+    <section class="screen sleep" id="sleep" aria-label="Asleep">
+      <div class="sleep-inner">
+        <p class="sleep-clock" id="sleepClock"></p>
+        <p class="sleep-prompt">press any key to wake</p>
+      </div>
+      <span class="sleep-word" id="sleepWord" aria-hidden="true"></span>
+    </section>
+
+    <!-- SIGN IN -->
+    <section class="screen lock" id="lock" aria-label="Sign in">
+      <div class="lock-inner">
+        <div class="avatar" id="avatar" aria-hidden="true"></div>
+        <p class="lock-name" id="lockName"></p>
+        <form class="lock-form" id="lockForm" autocomplete="off">
+          <input class="lock-field" id="lockField" type="password" placeholder="" aria-label="Password" />
+          <button class="lock-go" id="lockGo" type="submit" aria-label="Sign in">→</button>
+        </form>
+        <p class="lock-hint" id="lockHint"></p>
+      </div>
+    </section>
+
+    <!-- DESKTOP -->
+    <div class="desktop" id="desktop">
+      <!-- menu bar -->
+      <div class="menubar" id="menubar">
+        <div class="mb-left">
+          <button class="mb-brand" id="mbBrand" aria-haspopup="true" aria-expanded="false">非</button>
+          <span class="mb-app" id="mbApp">Finder</span>
+        </div>
+        <div class="mb-right">
+          <span class="mb-presence" id="presence" title="" aria-hidden="true"></span>
+          <span class="mb-clock" id="clock"></span>
+        </div>
+        <!-- brand dropdown -->
+        <div class="mb-menu" id="mbMenu" hidden>
+          <button data-act="about">About this machine</button>
+          <div class="mb-sep"></div>
+          <button data-act="reset">Reset experience…</button>
+        </div>
+      </div>
+
+      <!-- wallpaper + icons -->
+      <div class="wallpaper" id="wallpaper">
+        <div class="desk-icons" id="deskIcons" aria-label="Desktop"></div>
+      </div>
+
+      <!-- window host -->
+      <div class="windows" id="windows"></div>
+
+      <!-- dock -->
+      <div class="dock" id="dock"></div>
+    </div>
+  </div>
+
+  <!-- ================= ARCHIVE ================= -->
+  <section class="archive" id="archive" aria-hidden="true">
+    <div class="ar-grain" aria-hidden="true"></div>
+    <div class="ar-wrap" id="arWrap"></div>
+  </section>
+
+  <!-- toasts + modals -->
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="modal-host" id="modalHost" hidden></div>
+
+  <script src="content.js?v=10"></script>
+  <script src="portfolio.js?v=10"></script>
+  <script src="os.js?v=10"></script>
+</body>
+</html>
