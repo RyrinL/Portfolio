@@ -1,7 +1,7 @@
 /* ============================================================
    ALL OF YOUR PORTFOLIO CONTENT LIVES IN THIS FILE.
    Edit the text below, save, and refresh the page.
-   Everything marked "TODO" is still missing from your CV.
+   Source: Pradipta_Ryandhi_CV.pdf (Nov 2026).
    ============================================================ */
 
 window.PORTFOLIO = {
@@ -10,150 +10,184 @@ window.PORTFOLIO = {
   initials: "PM",                          // not shown in the current layout; kept for later use
   roles: [                                 // typed out one after another under your name
     "Software Engineering Student",
-    "Full-Stack Developer",
-    "LLM Security Evaluation",
+    "AI-Assisted Product Builder",
+    "Full-Stack & Mobile Developer",
   ],
   tagline:
-    "Software engineering student building full-stack systems, machine-learning experiments, and tools for testing how language models break.",
-  location: "Nanjing, China",              // first word becomes the clock label
-  timezone: "Asia/Shanghai",               // IANA zone for the live clock. Empty = visitor's local time
+    "Informatics and Software Engineering student turning ideas into working products, from AI-powered mobile apps to full-stack web platforms.",
+  location: "Balikpapan, Indonesia",       // first word becomes the clock label
+  timezone: "Asia/Makassar",               // Balikpapan is WITA (UTC+8). Empty = visitor's local time
   email: "nayr.sloth@gmail.com",
   available: true,                         // shows the badge under the tagline; set to false to hide
   availableLabel: "open to internships",
-  resumeUrl: "cv.pdf",                    // the CV download (file sits next to index.html)
+  resumeUrl: "cv.pdf",                     // the CV download (file sits next to index.html)
 
   socials: [
     { label: "GitHub", url: "https://github.com/RyrinL" },
-    // TODO add LinkedIn when ready:
-    // { label: "LinkedIn", url: "https://www.linkedin.com/in/your-username" },
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/ryandhilingga" },
   ],
 
   // --- Projects -----------------------------------------------
   // Each project is one full-screen panel.
-  //   short    — optional shorter name for the project index on the left
-  //   image    — optional path to a screenshot, e.g. "img/lilith.png". Empty = generated line art
-  //   code/live — optional links. Empty = hidden
+  //   short     - optional shorter name for the project index
+  //   image     - optional path to a screenshot, e.g. "img/lilith.png". Empty = generated line art
+  //   code/live - optional links. Empty = hidden
   projects: [
     {
       title: "LILITH",
-      subtitle: "LLM jailbreak attack–defense evaluation platform.",
-      context: "7th semester · Graduation thesis · in progress",
+      subtitle: "LLM jailbreak attack-defense research platform.",
+      context: "7th semester · Graduation thesis · Nanjing Xiaozhuang University",
       stack: ["Vue 3", "Spring Boot", "Python"],
       description: [
-        "LILITH — LLM Interactive Lab for Injection Testing and Harm-evaluation — is a full-stack platform for running jailbreak attack and defense experiments against language models.",
-        "A Python attack engine tests 2 attack strategies against 2 defenses on 2 target models, and GPT-4o-mini judges every response automatically. Currently in development as my graduation thesis.",
-      ],
-      image: "", code: "", live: "",       // TODO links
-    },
-    {
-      title: "Skin Lesion Classification on Imbalanced Data",
-      short: "Skin Lesion Classification",
-      subtitle: "Medical imaging when the classes are far from balanced.",
-      context: "7th semester · Medical AI · Team of 3",
-      stack: ["PyTorch", "ResNet18", "Transfer learning"],
-      description: [
-        "A team study comparing ways to handle class imbalance on the HAM10000 skin-lesion dataset: data augmentation, class-weighted loss, and oversampling.",
-        "Each strategy was evaluated on a ResNet18 fine-tuned with transfer learning in PyTorch.",
+        "LILITH (LLM Interactive Lab for Injection Testing and Harm-evaluation) is a full-stack platform for jailbreak attack and defense research on language models.",
+        "It pairs attack strategies against defenses across several target models, runs them through a Python attack engine, and judges every response automatically with GPT-4o-mini.",
       ],
       image: "", code: "", live: "",
     },
     {
       title: "CostCraft",
-      subtitle: "Bakery cost management system.",
-      context: "6th semester · Web application",
+      subtitle: "Cost and inventory management for small producer-vendors.",
+      context: "6th semester · Web application · Nanjing Xiaozhuang University",
       stack: ["Java", "Servlet", "JSP", "JDBC", "Chart.js"],
       description: [
-        "A J2EE web application that helps a bakery track what its products actually cost to make, built on Servlet, JSP and JDBC with 8 design patterns in the codebase.",
-        "Features multi-currency conversion, CSV export, Chart.js trend charts, and a mobile-responsive UI.",
+        "A J2EE cost and inventory system built around a bakery use case, with four core modules and eight design patterns on a Servlet, JSP and JDBC stack.",
+        "Features multi-currency conversion, CSV export, Chart.js unit-cost trend charts, and a mobile-responsive UI.",
       ],
-      image: "", code: "", live: "",
+      image: "", code: "https://github.com/RyrinL/CostCraft", live: "",
     },
     {
       title: "The Translator's House",
+      short: "Translator's House",
       subtitle: "A console text adventure built on nine design patterns.",
-      context: "6th semester · Design patterns",
+      context: "6th semester · Design patterns · Nanjing Xiaozhuang University",
       stack: ["Java 21"],
       description: [
-        "A text adventure for the terminal, written in Java 21 as a study in applying design patterns to a real, playable program.",
-        "It implements Singleton, State, Command, Composite, Iterator, Observer, Template Method, Facade, and Memento.",
+        "A playable text adventure for the terminal, written in Java 21 as a study in applying design patterns where they actually earn their place.",
+        "State drives room transitions, Command supports undo, an Observer bus carries world events, and Iterator, Factory, Composite, Facade and Memento handle inventory, items, containers, the game API and save/undo.",
       ],
-      image: "", code: "", live: "",
+      image: "", code: "https://github.com/RyrinL/Translators-House", live: "",
     },
     {
-      title: "Nadi",
-      subtitle: "Southeast Asian cultural events booking platform.",
-      context: "6th semester · Human-computer interaction",
-      stack: ["UX research", "Personas", "Storyboard", "Experience map"],
+      title: "FitSight",
+      subtitle: "A SwiftUI fitness coach that watches your form.",
+      context: "6th semester · iOS app · Nanjing Xiaozhuang University",
+      stack: ["SwiftUI", "TensorFlow Lite", "MoveNet", "Firebase", "HealthKit", "CrewAI"],
       description: [
-        "A booking platform concept for Southeast Asian cultural events, taken through a full UX process.",
-        "Deliverables include personas, a storyboard, an experience map, and Android-first technical recommendations.",
+        "Gives real-time feedback on exercise form using on-device MoveNet pose tracking through TensorFlow Lite.",
+        "Adds an AI chat coach, calorie and nutrition logging, workout plans, streaks and achievements, HealthKit sync, and a Firebase Auth and Firestore backend with CrewAI agents.",
       ],
-      image: "", code: "", live: "",
+      image: "", code: "https://github.com/RyrinL/FitSight", live: "",
     },
     {
       title: "Petalogue",
-      subtitle: "A flower-scanning collector app for iOS.",
-      context: "iOS app",                  // TODO add the semester
+      subtitle: "A Pokédex-style flower-scanning collector app.",
+      context: "6th semester · iOS app · Nanjing Xiaozhuang University",
       stack: ["Swift", "Pl@ntNet API"],
       description: [
-        "A Swift iOS app design for scanning and collecting flowers, identifying each one through the Pl@ntNet API.",
-        "Ships with a catalog of 10 species local to Nanjing.",
+        "Scan a flower, identify it through the Pl@ntNet API, and add it to your collection.",
+        "The ten-flower catalog is biased toward species you can actually find around Nanjing.",
       ],
-      image: "", code: "", live: "",
+      image: "", code: "https://github.com/RyrinL/Petalogue", live: "",
+    },
+    {
+      title: "FinLife",
+      subtitle: "Personal finance, budgeting and savings in one app.",
+      context: "4th semester · Web application · Universitas Islam Indonesia",
+      stack: ["React", "TypeScript", "Vite", "Tailwind", "Supabase"],
+      description: [
+        "A personal finance web app with transaction tracking, budget planning, savings goals and spending-trend charts.",
+        "Also includes receipt scanning, AI-driven recommendations, and a financial-education section.",
+      ],
+      image: "", code: "https://github.com/ardeliaptr/FinLife-", live: "",
+    },
+    {
+      title: "Civic Traffic Knowledge",
+      short: "Civic Traffic Knowledge (CTK)",
+      subtitle: "Learning Indonesian road signs, one quiz at a time.",
+      context: "3rd semester · Web application · Universitas Islam Indonesia",
+      stack: ["PHP", "MySQL"],
+      description: [
+        "A web app for learning Indonesian road signs (rambu), with a sign-learning module and a scored interactive quiz.",
+        "Includes user registration and profiles, plus an admin dashboard for managing users, quiz questions and signs.",
+      ],
+      image: "", code: "https://github.com/aulirarahmi/PSIII-B-EXPO-2024", live: "",
+    },
+    {
+      title: "Jogja Tour",
+      subtitle: "Travel booking for Yogyakarta tourism.",
+      context: "2nd semester · Desktop application · 2nd Most Favorite Project, Informatics Expo",
+      stack: ["Java", "JavaFX", "XML"],
+      description: [
+        "A JavaFX desktop app for browsing nature, cultural and religious destinations around Yogyakarta, with a wishlist, ticket booking and payment, and booking notifications.",
+        "Separate user and travel-agent roles, with XML-backed storage. I was the backend developer, building the application logic and data handling.",
+      ],
+      image: "", code: "https://github.com/848ill/Jogja-Tour", live: "",
     },
   ],
 
   // --- About --------------------------------------------------
   about: [
-    "I'm a Software Engineering student at Nanjing Xiaozhuang University, on a 2+2 double degree with Universitas Islam Indonesia. My background spans full-stack web development, machine learning, and human-computer interaction.",
-    "I build end-to-end systems with Java, Spring Boot, Vue and Python, across coursework and independent projects. Right now I'm developing an LLM jailbreak evaluation platform as my graduation thesis.",
-    "I'm looking for internships in software engineering and AI, where I can bring technical depth, creative problem-solving, and the adaptability that comes from studying across cultures.",
+    "I'm an Informatics and Software Engineering student in a 2+2 Double Degree program between Universitas Islam Indonesia and Nanjing Xiaozhuang University.",
+    "I focus on turning ideas into practical products, using AI-assisted development to move quickly from concept to working application. I've built AI-powered mobile and web apps, trained machine learning models, and shipped team projects across two universities.",
+    "I'm looking for internships in AI/ML, data, and software development, where I can contribute, keep learning, and grow.",
   ],
   stats: [                                 // numbers count up when scrolled into view
-    { value: 6, suffix: "", label: "Projects" },
+    { value: 8, suffix: "", label: "Projects" },
     { value: 3, suffix: "", label: "Spoken languages" },
-    { value: 2, suffix: "", label: "Countries studied in" },
+    { value: 2, suffix: "", label: "Universities" },
   ],
 
   // --- Skills -------------------------------------------------
   skills: [
-    { group: "Languages", items: ["Java", "Python", "JavaScript", "SQL", "HTML/CSS"] },
+    { group: "Languages", items: ["Java", "Python", "JavaScript", "SQL", "Swift"] },
     { group: "Frameworks", items: ["Spring Boot", "Vue 3", "Servlet/JSP", "PyTorch"] },
-    { group: "Focus", items: ["Full-stack development", "Machine learning", "LLM integration & evaluation", "UI/UX prototyping"] },
-    { group: "Tools", items: ["Git", "Docker", "MySQL", "Maven", "VS Code", "IntelliJ IDEA", "WEKA", "Ollama"] },
-    { group: "Spoken", items: ["Indonesian — native", "English — fluent", "Mandarin — intermediate"] },
+    { group: "Focus", items: ["LLM integration & evaluation", "Prompt engineering", "Full-stack development", "Machine learning (ResNet, transfer learning)", "Design patterns"] },
+    { group: "Tools", items: ["Git", "Docker", "MySQL", "Maven", "VS Code", "IntelliJ IDEA", "Xcode", "WEKA", "Ollama", "Figma"] },
+    { group: "Spoken", items: ["Indonesian (native)", "English (fluent)", "Mandarin Chinese (elementary)"] },
   ],
 
   // --- Experience & education (newest first) ------------------
-  // "period" is optional — leave "" and the line is hidden.
+  // "period" is optional. Leave "" and the line is hidden.
   experience: [
     {
-      role: "Bachelor of Software Engineering",
-      org: "Nanjing Xiaozhuang University — Nanjing, China",
-      period: "Education · Sep 2025 — Present",
+      role: "Bachelor of Engineering, Computer Software Engineering",
+      org: "Nanjing Xiaozhuang University, Nanjing, China",
+      period: "Education · 2025 – Present",
       points: [
-        "Software engineering, system design, and AI-driven application development through coursework and collaborative projects.",
-        "Interested in LLM security evaluation, full-stack development, and the intersection of technology and creative storytelling.",
+        "2+2 Double Degree Program.",
+        "Software engineering, system design and design patterns through coursework and hands-on team projects.",
       ],
     },
     {
-      role: "Event and Competition Coordinator",
-      org: "Nanjing Xiaozhuang University",   // TODO department name
-      period: "Organization",                  // TODO dates
+      role: "Competition Coordinator, Events & Competition Department",
+      org: "PORSEMATIK 2024, Universitas Islam Indonesia",
+      period: "Organization · Nov 2024 – Dec 2024",
       points: [
-        "Coordinated logistics, scheduling, and communications for the department's annual competition event.",
+        "Planned and ran the competitions for the annual sports and arts event of the UII Informatics student association (HMIF, LEM FTI UII).",
+        "Coordinated a competition round across departments to keep activities on schedule.",
       ],
     },
     {
-      role: "Bachelor of Informatics Engineering",
-      org: "Universitas Islam Indonesia — Yogyakarta, Indonesia",
-      period: "Education",                     // TODO years
-      points: ["2+2 Double Degree Program."],  // TODO coursework, projects, achievements
+      role: "2nd Most Favorite Project (Terfavorit 2)",
+      org: "Informatics Expo 2023/2024 Vol.2, Universitas Islam Indonesia",
+      period: "Award · Jul 2024",
+      points: [
+        "Team award for Jogja Tour, a JavaFX travel-booking app built for the Fundamentals of Application Development course.",
+        "As backend developer, built the application logic and XML data handling behind browsing, wishlist, booking and payment, and the user and travel-agent roles.",
+      ],
     },
     {
-      role: "Mining Geology (Geologi Pertambangan)",
-      org: "SMKN 1 Balikpapan — Balikpapan, Indonesia",
-      period: "Education",                     // TODO years
+      role: "Bachelor of Computer Science (Sarjana Komputer), Informatics",
+      org: "Universitas Islam Indonesia, Yogyakarta, Indonesia",
+      period: "Education · 2023 – 2027",
+      points: [
+        "Foundation in web development, databases, UI/UX design and project management through semester team projects.",
+      ],
+    },
+    {
+      role: "Vocational High School, Mining Geology (Geologi Pertambangan)",
+      org: "SMKN 1 Balikpapan, Balikpapan, Indonesia",
+      period: "Education · 2018 – 2022",
       points: [],
     },
   ],
@@ -227,14 +261,14 @@ window.OS = {
       body: [
         "[ résumé ]",
         "Open the Portfolio app for the full, current version — projects, skills, experience, contact.",
-        "( drop your real resume.pdf next to index.html and point content.js → resumeUrl at it )",
+        "( the downloadable copy is CV.pdf, on the desktop )",
       ],
     },
     {
       id: "projects", name: "projects", glyph: "▭", kind: "folder", deletable: true,
-      meta: "folder · 6 items",
+      meta: "folder · 8 items",
       body: [
-        "LILITH · Skin Lesion Classification · CostCraft · The Translator's House · Nadi · Petalogue",
+        "LILITH · CostCraft · The Translator's House · FitSight · Petalogue · FinLife · CTK · Jogja Tour",
         "The real writeups live in the Portfolio app. This is just the shortcut nobody updates.",
       ],
     },
