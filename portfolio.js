@@ -52,10 +52,9 @@
     `<header class="pf-hero pf-head rv"><p class="pf-eyebrow">${esc(eyebrow)}</p><h1 class="pf-name">${esc(title)}</h1>${sub ? `<p class="pf-tagline">${esc(sub)}</p>` : ""}${extra || ""}</header>`;
 
   /* ---- Projects ---- */
-  const projects = () => {
+  const projectList = () => {
     const list = D.projects || [];
-    return head("Selected work", "Projects", `${list.length} projects · ${D.name || ""}`) + `
-      <section class="pf-sec" data-accent="you">
+    return `
         <div class="pf-projects">
           ${list.map((p, n) => `
             <article class="pf-proj rv" style="--d:${(n % 2) * 60}ms">
@@ -70,12 +69,14 @@
                 ${p.live || p.code ? `<div class="pf-proj-links">${p.live ? `<a href="${safeUrl(p.live)}" target="_blank" rel="noopener">visit ↗</a>` : ""}${p.code ? `<a href="${safeUrl(p.code)}" target="_blank" rel="noopener">code ↗</a>` : ""}</div>` : ""}
               </div>
             </article>`).join("")}
-        </div>
-      </section>`;
+        </div>`;
   };
+  const projects = () =>
+    head("Selected work", "Projects", `${(D.projects || []).length} projects · ${D.name || ""}`) +
+    `<section class="pf-sec" data-accent="you">${projectList()}</section>`;
 
   /* ---- About (includes contact + CV) ---- */
-  const about = () => `
+  const aboutHero = () => `
     <header class="pf-hero rv">
       <p class="pf-eyebrow">${esc((D.roles || [])[0] || "")}</p>
       <h1 class="pf-name">${esc(D.name || "")}</h1>
@@ -83,7 +84,8 @@
       ${D.available ? `<p class="pf-badge"><span class="pf-dot"></span>${esc(D.availableLabel || "open to work")}</p>` : ""}
       ${links()}
       <div class="pf-cv-row">${cvBtn()}</div>
-    </header>
+    </header>`;
+  const aboutBody = () => `
     <section class="pf-sec" data-accent="me">
       <p class="pf-sec-k rv">About</p>
       <div class="pf-about rv">${(D.about || []).map((p) => `<p>${esc(p)}</p>`).join("")}</div>
@@ -100,11 +102,10 @@
       <a class="pf-email rv" href="mailto:${esc(D.email || "")}">${esc(D.email || "")}</a>
       <p class="pf-foot rv">© ${new Date().getFullYear()} ${esc(D.name || "")}</p>
     </section>`;
+  const about = () => aboutHero() + aboutBody();
 
   /* ---- Experience ---- */
-  const experience = () =>
-    head("Experience & education", "Where I've been.", null, `<div class="pf-cv-row">${cvBtn()}</div>`) + `
-    <section class="pf-sec" data-accent="me">
+  const timeline = () => `
       <ol class="pf-timeline">
         ${(D.experience || []).map((e) => `
           <li class="pf-item rv">
@@ -113,26 +114,60 @@
             <span class="pf-org">${esc(e.org)}</span>
             ${(e.points || []).length ? `<ul class="pf-points">${e.points.map((pt) => `<li>${esc(pt)}</li>`).join("")}</ul>` : ""}
           </li>`).join("")}
-      </ol>
-    </section>`;
+      </ol>`;
+  const experience = () =>
+    head("Experience & education", "Where I've been.", null, `<div class="pf-cv-row">${cvBtn()}</div>`) +
+    `<section class="pf-sec" data-accent="me">${timeline()}</section>`;
+
+  /* ---- Mobile: everything on one scrolling page, no OS ---- */
+  const page = () => `
+    <nav class="m-bar" aria-label="Sections">
+      <a class="m-brand" href="#m-top">${esc(D.initials || "")}</a>
+      <div class="m-nav"><a href="#m-work">Work</a><a href="#m-exp">Experience</a><a href="#m-about">About</a></div>
+    </nav>
+    <div id="m-top">${aboutHero()}</div>
+    <section class="pf-sec" id="m-work" data-accent="you"><p class="pf-sec-k rv">Selected work</p>${projectList()}</section>
+    <section class="pf-sec" id="m-exp" data-accent="me"><p class="pf-sec-k rv">Experience & education</p>${timeline()}</section>
+    <div id="m-about">${aboutBody()}</div>`;
 
   const VIEWS = { projects, about, experience };
 
   function render(scrollEl, section) {
     const view = VIEWS[section] || about;
     scrollEl.innerHTML = `<div class="pf" data-view="${esc(section || "about")}">${view()}</div>`;
+    reveal(scrollEl, scrollEl);
+  }
+
+  // root = the scrolling element, or null for the page itself (mobile)
+  function reveal(scrollEl, root) {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const rvs = scrollEl.querySelectorAll(".rv");
     if (reduce || !("IntersectionObserver" in window)) { rvs.forEach((el) => el.classList.add("in")); scrollEl.querySelectorAll(".pf-art").forEach((el) => el.classList.add("in")); return; }
     const io = new IntersectionObserver((ents) => {
       ents.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
-    }, { root: scrollEl, threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    }, { root, threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
     rvs.forEach((el) => io.observe(el));
     const ia = new IntersectionObserver((ents) => {
       ents.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("in"); ia.unobserve(en.target); } });
-    }, { root: scrollEl, threshold: 0.2 });
+    }, { root, threshold: 0.2 });
     scrollEl.querySelectorAll(".pf-art").forEach((el) => ia.observe(el));
   }
 
-  window.Portfolio = { render, art };
+  // Phones get a plain one-page portfolio instead of the desktop OS (see .mobile in style.css).
+  const small = matchMedia("(max-width: 760px)");
+  let pageDone = false;
+  function renderPage() {
+    const host = document.getElementById("mobile");
+    if (!host || pageDone || !small.matches) return;
+    pageDone = true;
+    host.innerHTML = `<div class="pf" data-view="page">${page()}</div>`;
+    reveal(host, null);
+    // deep links (#projects / #experience / #about) land on the matching section
+    const to = { "#projects": "m-work", "#experience": "m-exp", "#about": "m-about" }[location.hash];
+    if (to) requestAnimationFrame(() => document.getElementById(to).scrollIntoView());
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", renderPage); else renderPage();
+  small.addEventListener ? small.addEventListener("change", renderPage) : small.addListener(renderPage);
+
+  window.Portfolio = { render, renderPage, art };
 })();

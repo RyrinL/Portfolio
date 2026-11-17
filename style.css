@@ -468,8 +468,9 @@ html[data-archive] .archive { opacity: 1; visibility: visible; pointer-events: a
 
 .pf-projects { display: flex; flex-direction: column; gap: 60px; }
 .pf-proj { display: grid; grid-template-columns: 1fr; gap: 22px; }
-.pf-art { aspect-ratio: 21/9; border: 1px solid var(--hairline); background: var(--bg-surface); overflow: hidden; }
-.pf-art img, .pf-art .art { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pf-art { aspect-ratio: 21/9; padding: 10px; border: 1px solid var(--hairline); border-radius: 8px; background: var(--bg-surface); overflow: hidden; }
+/* inset "mat": the image/gif sits inside the frame with a small gap, like a mounted print */
+.pf-art img, .pf-art .art { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px; outline: 1px solid var(--hairline); outline-offset: -1px; }
 .art { fill: none; stroke: var(--text-soft); stroke-width: 1.2; stroke-opacity: .38; }
 .art .moon { stroke: none; } .art .moon-you { fill: var(--you); fill-opacity: .2; } .art .moon-me { fill: var(--me); fill-opacity: .2; }
 .art .dotm { fill: var(--text-soft); fill-opacity: .35; stroke: none; }
@@ -520,7 +521,7 @@ html[data-archive] .archive { opacity: 1; visibility: visible; pointer-events: a
 
 @media (min-width: 720px) {
   .pf-proj { grid-template-columns: 1.1fr 1fr; align-items: start; gap: 34px; }
-  .pf-proj .pf-art { position: sticky; top: 0; }
+  .pf-proj .pf-art { position: sticky; top: 16px; }
 }
 
 /* fix: the hidden modal layer must not swallow clicks */
@@ -634,3 +635,41 @@ html.has-cursor .icon.dragging { cursor: none; }
   50%     { transform: translate(-3px, 2px); clip-path: inset(0 0 60% 0); }
 }
 @media (prefers-reduced-motion: reduce) { .takeover { display: none !important; } }
+
+/* ---------- "skip to portfolio" on sleep + sign-in ---------- */
+.skip {
+  position: absolute; left: 50%; bottom: max(28px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  font: 400 11.5px/1 var(--mono); letter-spacing: .14em; text-transform: lowercase;
+  color: var(--text-muted); padding: 10px 14px; border-radius: 20px;
+  border: 1px solid transparent; transition: color .25s, border-color .25s, background-color .25s;
+}
+.skip:hover, .skip:focus-visible { color: var(--text); border-color: var(--hairline-2); background: rgba(255,255,255,.04); }
+.sleep.waking .skip { opacity: 0; transition: opacity var(--dur-slow); }
+
+/* ---------- MOBILE: a plain one-page portfolio instead of the OS ---------- */
+.mobile { display: none; }
+@media (max-width: 760px) {
+  body { overflow: auto; }
+  .os, .archive, .cursor { display: none !important; }
+  .mobile { display: block; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html { scroll-behavior: smooth; scroll-padding-top: 56px; }
+
+  .m-bar {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px;
+    background: rgba(10,8,9,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .m-brand { font: 500 18px/1 var(--serif); letter-spacing: .04em; }
+  .m-nav { display: flex; gap: 18px; font: 500 12px/1 var(--mono); letter-spacing: .06em; }
+  .m-nav a { color: var(--text-soft); padding: 6px 0; }
+  .m-nav a:active { color: var(--you); }
+
+  .mobile .pf-hero { padding: 44px 20px 36px; }
+  .mobile .pf-sec { padding: 44px 20px; }
+  .mobile .pf-sec-k { margin-bottom: 26px; }
+  .mobile .pf-projects { gap: 52px; }
+  .mobile .pf-art { aspect-ratio: 16/10; padding: 8px; }
+  .mobile .pf-proj .pf-art { position: static; }
+  .mobile .pf-links { gap: 16px 20px; }
+}

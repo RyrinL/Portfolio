@@ -98,7 +98,7 @@
     setTimeout(step, 240);
   };
   $("#sleep").addEventListener("click", wake);
-  addEventListener("keydown", (e) => { if (root.getAttribute("data-state") === "sleep") { e.preventDefault(); wake(); } });
+  addEventListener("keydown", (e) => { if (root.getAttribute("data-state") === "sleep" && !(e.target.closest && e.target.closest("[data-skip]"))) { e.preventDefault(); wake(); } });
 
   /* ========== SIGN IN ========== */
   const owner = OS.owner || {};
@@ -111,6 +111,13 @@
   addEventListener("keydown", (e) => { if (e.key === "Enter" && root.getAttribute("data-state") === "lock" && document.activeElement !== $("#lockField")) { e.preventDefault(); signIn(); } });
   $("#avatar").addEventListener("click", signIn);
 
+  // "skip to portfolio": straight to the desktop with Projects open (for people in a hurry)
+  const skipTo = (id) => {
+    LS.booted = true; setState("desktop"); boot();
+    const a = apps().find((x) => x.id === id); if (a) setTimeout(() => openApp(a), 120);
+  };
+  $$("[data-skip]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); skipTo("projects"); }));
+
   /* ========== DESKTOP ICONS (apps, draggable, right side) ========== */
   const ICON_W = 92, deskIcons = $("#deskIcons"), presenceEl = $("#presence"), clockEl = $("#clock");
   const sysNow = () => { const n = new Date(); return S.sysDate ? new Date(S.sysDate.y, S.sysDate.m - 1, S.sysDate.d, n.getHours(), n.getMinutes()) : n; };
@@ -121,7 +128,16 @@
     apps().filter((a) => a.desktop !== false).forEach((a, i) => { pos[a.id] = { x: 20 + Math.floor(i / rows) * 100, y: top + (i % rows) * step }; });
     return pos;
   };
-  const loadPos = () => { const p = LS.icons; return p && typeof p === "object" ? p : defaultPos(); };
+  // A saved layout where icons sit on top of each other is broken (and would let any
+  // tiny drag drop an app on the Bin), so fall back to the default grid.
+  const sane = (p) => {
+    const pts = Object.values(p).filter((v) => v && isFinite(v.x) && isFinite(v.y));
+    if (!pts.length) return false;
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++)
+      if (Math.abs(pts[i].x - pts[j].x) < 40 && Math.abs(pts[i].y - pts[j].y) < 40) return false;
+    return true;
+  };
+  const loadPos = () => { const p = LS.icons; if (p && typeof p === "object" && sane(p)) return p; const d = defaultPos(); LS.icons = d; return d; };
 
   const iconMarkup = (a) => {
     const i = el("div", "icon", `<div class="icon-glyph">${esc(a.glyph)}</div><div class="icon-label">${esc(a.name)}</div>`);
@@ -165,25 +181,27 @@
     const a = apps().find((x) => x.id === i.dataset.id); if (a) openApp(a);
   };
   const binIcon = () => deskIcons.querySelector('.icon[data-kind="bin"]');
-  const overBin = (ic) => {
+  // Drop counts only when the pointer itself is over the Bin, after a real drag.
+  const overBin = (ic, px, py) => {
     const b = binIcon(); if (!b || b === ic) return false;
-    const a = ic.getBoundingClientRect(), r = b.getBoundingClientRect(), cx = a.left + a.width / 2, cy = a.top + a.height / 2;
-    return cx > r.left && cx < r.right && cy > r.top && cy < r.bottom;
+    const r = b.getBoundingClientRect();
+    return px > r.left && px < r.right && py > r.top && py < r.bottom;
   };
   document.addEventListener("pointermove", (e) => {
     if (!drag) return;
     const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-    if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 6) return;
     drag.moved = true; drag.icon.classList.add("dragging");
     const nx = clamp(drag.ox + dx, 4, innerWidth - drag.icon.offsetWidth - 4);
     const ny = clamp(drag.oy + dy, 34, innerHeight - drag.icon.offsetHeight - 4);
     drag.icon.style.left = nx + "px"; drag.icon.style.top = ny + "px";
-    const b = binIcon(); if (b) b.classList.toggle("drop-target", drag.icon.dataset.kind !== "bin" && overBin(drag.icon));
+    const b = binIcon(); if (b) b.classList.toggle("drop-target", drag.icon.dataset.kind !== "bin" && overBin(drag.icon, e.clientX, e.clientY));
   });
-  document.addEventListener("pointerup", () => {
+  document.addEventListener("pointerup", (e) => {
     if (!drag) return;
     const b = binIcon(); if (b) b.classList.remove("drop-target");
-    if (drag.moved && drag.icon.dataset.kind !== "bin" && overBin(drag.icon)) {
+    const far = Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) > 24;
+    if (drag.moved && far && drag.icon.dataset.kind !== "bin" && overBin(drag.icon, e.clientX, e.clientY)) {
       const id = drag.id; drag = null; suppress = true; setTimeout(() => (suppress = false), 40);
       trashApp(id); return;
     }
@@ -210,13 +228,11 @@
       i.addEventListener("contextmenu", (e) => { e.preventDefault(); selectIcon(i); showCtx(e.clientX, e.clientY, i); });
     });
   };
+  // Re-place from the saved layout on resize, never overwrite it: a minimized or
+  // hidden window reports a near-zero viewport and would collapse every icon onto one spot.
   addEventListener("resize", () => {
-    if (root.getAttribute("data-state") !== "desktop") return;
-    $$(".icon", deskIcons).forEach((ic) => {
-      const x = clamp(ic.offsetLeft, 4, innerWidth - ic.offsetWidth - 4), y = clamp(ic.offsetTop, 34, innerHeight - ic.offsetHeight - 4);
-      ic.style.left = x + "px"; ic.style.top = y + "px"; S.iconPos[ic.dataset.id] = { x, y };
-    });
-    LS.icons = S.iconPos;
+    if (root.getAttribute("data-state") !== "desktop" || innerWidth < 240 || innerHeight < 240) return;
+    placeIcons();
   });
 
   /* ----- context menu ----- */
@@ -686,8 +702,9 @@
   }
 
   /* ========== BOOT ========== */
-  let wallpaperDone = false;
+  let wallpaperDone = false, booted = false;
   function boot() {
+    if (booted) return; booted = true;
     if (!wallpaperDone) { $("#wallpaper").insertAdjacentHTML("afterbegin", buildWallpaper()); wallpaperDone = true; }
     S.iconPos = loadPos();
     S.seedAwake = S.unlocked || allGone();
@@ -696,6 +713,9 @@
     resetIdle();
   }
 
-  if (root.getAttribute("data-state") === "desktop") boot();
-  else tickClock();
+  if (root.getAttribute("data-state") === "desktop") {
+    boot();
+    const deep = (location.hash.match(/^#(projects|about|experience)$/) || [])[1];
+    if (deep) { LS.booted = true; const a = apps().find((x) => x.id === deep); if (a) setTimeout(() => openApp(a), 120); }
+  } else tickClock();
 })();
