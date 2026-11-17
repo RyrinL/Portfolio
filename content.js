@@ -27,6 +27,13 @@ window.PORTFOLIO = {
     { label: "LinkedIn", url: "https://www.linkedin.com/in/ryandhilingga" },
   ],
 
+  // --- The way into your archive (the desktop) ----------------
+  // The desktop is never reached by scrolling: only through these invitations.
+  archiveInvite: "Want to know me better?",                 // question at the very end of the page
+  archiveButton: "Open the archive",                        // the button under it
+  archiveNote: "Hobbies, notes and the rest of me.",        // small line under the button
+  archiveAboutLink: "There's more of me in the archive",    // quieter link at the end of About
+
   // --- Projects -----------------------------------------------
   // Each project is one full-screen panel.
   //   short     - optional shorter name for the project index
@@ -218,6 +225,18 @@ window.OS = {
     avatar: "非",                 // glyph shown on the lock screen
     hint: "no password — press Enter",
   },
+
+  // --- Sticky notes on the desktop (you write these) --------
+  // text   what the note says. Line breaks: write \n
+  // date   optional, shown small at the bottom
+  // color  "yellow" | "pink" | "blue" | "green" (optional, cycles if left out)
+  // x, y   optional position in % of the desktop: x from the RIGHT edge, y from the top.
+  //        Leave both out and notes line up down the right-hand side.
+  // rotate optional tilt in degrees
+  // Visitors can drag notes around; they go back to these places on reload.
+  notes: [
+    { text: "working on thesis", date: "Nov 2026", color: "yellow" },
+  ],
 
   // --- The date that keeps surfacing ------------------------
   // Real birthday. Public desktop shows the REAL current time;

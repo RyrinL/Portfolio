@@ -24,19 +24,29 @@ html[data-front="on"] .os,
 html[data-front="on"] .os * {
   pointer-events: none !important;
 }
+/* The desktop (the archive) is never revealed by scrolling: only the transition panel leads there
+   and it covers the swap. So it is hidden outright while the front is up (also stops it painting). */
+html[data-front="on"] .os { visibility: hidden; }
 
 .front {
   position: relative;
   z-index: 10;            /* above .os (fixed, no z-index); below toasts 8000, modals 8500, cursor 9100 */
-  /* transparent on purpose: the curtain at the bottom must show the OS through it */
 }
 
 html[data-front="off"] .front { display: none; }
+.front:focus { outline: none; }   /* focused programmatically on return, only to reset the Tab start point */
 
 /* Phones keep the existing plain #mobile page. */
 @media (max-width: 760px) {
   .front { display: none !important; }
 }
+
+/* Lenis (smooth scroll). Its classes exist only while the front is on:
+   front.js destroys Lenis at the handoff, which removes them. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 /* ================= TOKENS (front only) ================= */
 .front {
@@ -56,16 +66,55 @@ html[data-front="off"] .front { display: none; }
   color: var(--text-muted);
 }
 
-/* ================= SKIP LINK ================= */
-.f-skip {
-  position: fixed; left: 16px; top: 12px; z-index: 30;
-  padding: 10px 14px; border-radius: 20px;
-  font: 400 12px/1 var(--mono); letter-spacing: .08em;
-  background: var(--bg-surface); border: 1px solid var(--hairline-2);
-  transform: translateY(-160%);
-  transition: transform var(--dur-fast) var(--ease-out);
+/* ================= LOADER ================= */
+/* Static markup in index.html, visible from first paint while the front is on.
+   front.js runs the words and the exit; the failsafe hides it if scripts never arrive. */
+.f-loader { display: none; }
+html[data-front="on"] .f-loader {
+  position: fixed; inset: 0; z-index: 9500;
+  display: grid; place-items: center;
+  background: var(--bg-surface);
+  color: var(--text);
+  animation: f-loader-failsafe .5s 8s forwards;
 }
-.f-skip:focus { transform: none; }
+@keyframes f-loader-failsafe { to { opacity: 0; visibility: hidden; } }
+/* bottom lip: hangs below the panel, bulges while it lifts, flattens as it leaves */
+.f-loader-curve {
+  position: absolute; left: -10%; width: 120%; top: calc(100% - 1px); height: 16vh;
+  background: inherit; border-radius: 0 0 50% 50%;
+  pointer-events: none;
+}
+.f-loader-word {
+  margin: 0; display: flex; align-items: center; gap: .45em;
+  font: 500 clamp(2.4rem, 5vw, 4.6rem)/1.1 var(--serif);
+  /* EB Garamond has no CJK glyphs: fall back to serif (mincho/song) faces, not the system sans */
+  font-family: "EB Garamond", "Noto Serif SC", "Source Han Serif SC", "Songti SC", "Yu Mincho", "Hiragino Mincho ProN", "MS Mincho", Georgia, serif;
+  overflow: hidden; padding: .1em 0;            /* masks each word sliding in from below */
+}
+.f-loader-dot { flex: none; width: .2em; height: .2em; border-radius: 50%; background: var(--you); }
+#fLoaderWord { display: inline-block; min-width: 1ch; }
+html.reduced .f-loader-curve { display: none; }
+
+/* Hero elements wait hidden until the intro plays (class set by front.js only when it will animate).
+   visibility keeps their layout, so SplitText measures correctly. */
+html.f-intro-pending .f-nav,
+html.f-intro-pending .f-hero > * { visibility: hidden; }
+/* SplitText masks clip to each character's line box. The name's tight line-height (.9)
+   would cut the "p" descender and "d" ascender mid-animation, so the lines get a taller
+   line-height with equal negative margins: same layout, glyphs fit inside their masks. */
+.f-name-first { line-height: 1.3 !important; margin: -.2em 0; }
+.f-name-rest  { line-height: 1.4 !important; margin-top: calc(clamp(.9rem, 3.4vw, 3.4rem) - .15em) !important; margin-bottom: -.15em; }
+
+/* hero rule draws in from the left (GSAP animates --f-rule 0 -> 1) */
+.f-hero-bottom { position: relative; border-top: 0 !important; }
+.f-hero-bottom::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--hairline);
+  transform: scaleX(var(--f-rule, 1)); transform-origin: left;
+}
+
+/* eyebrow role cycle: each role slides through a one-line mask */
+.f-eyebrow { overflow: hidden; }
+.f-eyebrow-in { display: inline-block; }
 
 /* ================= NAV ================= */
 .f-nav {
@@ -77,7 +126,6 @@ html[data-front="off"] .front { display: none; }
   color: #fff;
   transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out);
 }
-html.f-revealing .f-nav { opacity: 0; transform: translateY(-12px); pointer-events: none; }
 .f-brand { justify-self: start; letter-spacing: .01em; }
 .f-brand-c { display: inline-block; transition: transform .6s var(--ease-out); }
 .f-brand:hover .f-brand-c { transform: rotate(360deg); }
@@ -95,12 +143,6 @@ html.f-revealing .f-nav { opacity: 0; transform: translateY(-12px); pointer-even
 .f-page {
   position: relative;
   background: var(--bg);
-  /* rounded bottom edge: the OS appears beneath this lip as the curtain lifts */
-  border-radius: 0 0 var(--f-radius) var(--f-radius);
-  /* page and OS share the same near-black, so a shadow alone is invisible:
-     a hairline traces the curved lip, the shadow adds depth over the lit desktop */
-  border-bottom: 1px solid var(--hairline-2);
-  box-shadow: 0 1px 0 rgba(201, 112, 74, .18), 0 40px 80px -20px rgba(0, 0, 0, .8);
   overflow: hidden;
 }
 .f-page > section, .f-page > footer {
@@ -254,15 +296,41 @@ html.f-revealing .f-nav { opacity: 0; transform: translateY(-12px); pointer-even
 .f-btn:hover, .f-btn:focus-visible { color: var(--bg); border-color: var(--you); }
 .f-btn-text { position: relative; transition: color .3s; }
 
-.f-portal { display: grid; justify-items: center; gap: 16px; margin-top: clamp(80px, 14vh, 160px); text-align: center; }
-.f-btn-portal { padding: 26px 44px; font-size: 17px; }
-.f-portal-note { margin: 0; font: 400 12px/1 var(--mono); letter-spacing: .1em; color: var(--text-muted); }
+/* the invitation into the archive (desktop): a question, a button, a hint of what is inside */
+.f-portal {
+  display: grid; justify-items: center; gap: 18px; text-align: center;
+  margin-top: clamp(96px, 16vh, 180px); padding-top: clamp(56px, 10vh, 96px);
+  border-top: 1px solid var(--hairline);
+}
+.f-portal-ask { margin: 0; font: italic 500 clamp(1.8rem, 3.6vw, 3.2rem)/1.1 var(--serif); color: var(--text); }
+.f-btn-portal { padding: 24px 40px; font-size: 16px; margin-top: 6px; }
+.f-portal-note { margin: 0; font: 400 12px/1.5 var(--mono); letter-spacing: .08em; color: var(--text-muted); }
 .f-copy { margin: clamp(64px, 10vh, 120px) 0 0; font: 400 12px/1 var(--mono); color: var(--text-ghost); }
 
-/* ================= CURTAIN ================= */
-/* Transparent 100vh spacer. Scrolling through it reveals the fixed OS beneath.
-   When its top reaches the viewport top, front.js hands off to the OS. */
-.f-curtain { height: 100vh; height: 100svh; background: none; pointer-events: none; }
+/* quieter way in, at the end of About */
+.f-archive-link {
+  margin-top: 28px; padding: 0 0 6px; border: 0; background: none; cursor: pointer;
+  font: italic 500 clamp(1.1rem, 1.5vw, 1.3rem)/1.3 var(--serif); color: var(--you);
+  background-image: linear-gradient(currentColor, currentColor); background-repeat: no-repeat;
+  background-position: 0 100%; background-size: 0 1px; transition: background-size .5s var(--ease-out);
+}
+.f-archive-link:hover, .f-archive-link:focus-visible { background-size: 100% 1px; outline: none; }
+
+/* ================= TRANSITION PANEL (front <-> archive) ================= */
+/* Appended to <body> by front.js (it must also cover the OS). Same surface and lip as the loader. */
+.f-transit { display: none; }
+.f-transit.on {
+  position: fixed; inset: 0; z-index: 9500;
+  display: grid; place-items: center;
+  background: var(--bg-surface); color: var(--text);
+}
+.f-transit-lip { position: absolute; left: -10%; width: 120%; height: 0; background: inherit; pointer-events: none; }
+.f-transit-lip-top { bottom: calc(100% - 1px); border-radius: 50% 50% 0 0; }   /* leads on the way up */
+.f-transit-lip-bot { top: calc(100% - 1px); border-radius: 0 0 50% 50%; }      /* trails on the way out */
+.f-transit-word {
+  margin: 0; display: flex; align-items: center; gap: .45em;
+  font: italic 500 clamp(2.2rem, 4.6vw, 4.2rem)/1.1 var(--serif);
+}
 
 /* ================= MID-WIDTH (761 to 1024px) ================= */
 @media (max-width: 1024px) {
@@ -280,6 +348,101 @@ html.f-revealing .f-nav { opacity: 0; transform: translateY(-12px); pointer-even
   .f-about-grid { grid-template-columns: 1fr; }
   .f-stats { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ================= STEP 5: scroll-animation hooks ================= */
+/* Hairlines become scalable rules so they can draw in (GSAP animates --f-rule 0 -> 1).
+   Without JS or with reduced motion --f-rule is unset, so they render full width as before. */
+.f-sec-head, .f-row, .f-stat { position: relative; border-bottom: 0 !important; }
+.f-sec-head::after, .f-row::after, .f-stat::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  transform: scaleX(var(--f-rule, 1)); transform-origin: left; pointer-events: none;
+}
+.f-sec-head::after, .f-row::after { background: var(--hairline-2); }
+.f-stat::after { background: var(--hairline); }
+
+/* nav steps away on scroll down, back on scroll up */
+.f-nav.f-nav-hidden { transform: translateY(-110%); }
+
+/* Word masks on the section titles keep the titles' own tight line-height: front.js reverts each
+   split as soon as its reveal finishes, so descenders are masked only while the word slides in. */
+
+/* ================= STEP 6: pointer layer (html.f-pointer, real mouse only) ================= */
+.f-label { display: none; }
+html.f-pointer .f-label {
+  position: fixed; left: 0; top: 0; z-index: 30;      /* above nav (20), inside #front's stacking context */
+  width: 88px; height: 88px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--you); color: var(--bg);
+  font: 500 13px/1 var(--sans); letter-spacing: .02em;
+  pointer-events: none; will-change: transform;
+}
+/* the OS's global cursor dot steps aside while the label is up */
+html.f-label-on .cursor { opacity: 0 !important; }
+
+/* GSAP drives the fill: drop the CSS transitions so they do not fight it.
+   Wide ellipse, taller than the button: its curved top edge sweeps through. */
+html.f-pointer .f-btn-fill {
+  transition: none; opacity: 1; transform: none;   /* the CSS-only fallback transform would stack under GSAP's */
+  inset: -50% -15%; border-radius: 50%;
+}
+html.f-pointer .f-socials a, html.f-pointer .f-links a, html.f-pointer .f-email, html.f-pointer .f-btn { will-change: transform; }
+
+/* ================= PROJECT ROWS ARE BUTTONS ================= */
+.f-row-link {
+  width: 100%; margin: 0; border: 0; background: none; color: inherit;
+  font: inherit; text-align: left; cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) {
+  .f-row:hover .f-row-arrow { transform: translateX(6px); }
+}
+
+/* ================= PROJECT PANEL ================= */
+.f-panel[hidden] { display: none; }
+.f-panel { position: fixed; inset: 0; z-index: 40; }      /* above nav (20) and label (30) */
+.f-panel-backdrop {
+  position: absolute; inset: 0; cursor: pointer;
+  background: rgba(5, 4, 5, .62);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+}
+.f-panel-sheet {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(780px, 92vw);
+  display: flex; flex-direction: column;
+  padding: 28px clamp(24px, 4vw, 64px) 36px;
+  background: var(--bg-raised);
+  border-left: 1px solid var(--hairline-2);
+  overflow-y: auto; overscroll-behavior: contain;
+  box-shadow: -40px 0 80px -30px rgba(0, 0, 0, .8);
+}
+html.f-panel-open, html.f-panel-open body { overflow: hidden !important; }
+
+.f-panel-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--hairline); }
+.f-panel-n { margin: 0; font: 400 12px/1 var(--mono); letter-spacing: .12em; color: var(--text-muted); }
+.f-panel-close, .f-panel-next {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 18px; border-radius: 999px; border: 1px solid var(--hairline-2);
+  background: none; color: var(--text-soft); cursor: pointer;
+  font: 500 13px/1 var(--sans);
+  transition: color .25s, border-color .25s, background-color .25s;
+}
+.f-panel-close:hover, .f-panel-next:hover,
+.f-panel-close:focus-visible, .f-panel-next:focus-visible { color: var(--text); border-color: var(--you); background: var(--you-dim); outline: none; }
+
+.f-panel-body { flex: 1 0 auto; padding: clamp(32px, 6vh, 64px) 0 40px; }
+.f-panel-ctx { margin: 0 0 18px; font: 400 12px/1.6 var(--mono); letter-spacing: .06em; color: var(--text-muted); }
+.f-panel-title { margin: 0; font: 500 clamp(2.4rem, 5.4vw, 4.6rem)/1.02 var(--serif); letter-spacing: -.015em; }
+.f-panel-sub { margin: 16px 0 0; font: italic 500 clamp(1.15rem, 1.8vw, 1.5rem)/1.35 var(--serif); color: var(--text-soft); }
+.f-panel-img { margin: 32px 0 0; border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden; }
+.f-panel-img img { display: block; width: 100%; height: auto; }
+.f-panel-desc { margin-top: clamp(28px, 5vh, 44px); }
+.f-panel-desc p { margin: 0 0 1.1em; font-size: clamp(1rem, 1.25vw, 1.12rem); line-height: 1.75; color: var(--text-soft); max-width: 62ch; }
+.f-panel-stack { list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.f-panel-stack li { font: 400 12px/1 var(--mono); padding: 8px 12px; border: 1px solid var(--hairline-2); border-radius: 20px; color: var(--text-soft); }
+.f-panel-links { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 36px; font: 500 16px/1 var(--sans); }
+.f-panel-links a { color: var(--you); padding-bottom: 6px; background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1px; transition: background-size .45s var(--ease-out); }
+.f-panel-links a:hover, .f-panel-links a:focus-visible { background-size: 100% 1px; outline: none; }
+.f-panel-nolink { margin: 36px 0 0; font: 400 12px/1.6 var(--mono); color: var(--text-muted); }
+.f-panel-foot { display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid var(--hairline); }
 
 /* ================= REDUCED MOTION ================= */
 @media (prefers-reduced-motion: reduce) {
