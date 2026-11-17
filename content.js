@@ -1,7 +1,7 @@
 /* ============================================================
    ALL OF YOUR PORTFOLIO CONTENT LIVES IN THIS FILE.
    Edit the text below, save, and refresh the page.
-   Source: Pradipta_Ryandhi_CV.pdf (Nov 2026).
+   Source: Pradipta Ryandhi L.M. CV.pdf (Nov 2026).
    ============================================================ */
 
 window.PORTFOLIO = {
@@ -179,7 +179,7 @@ window.PORTFOLIO = {
     {
       role: "Bachelor of Computer Science (Sarjana Komputer), Informatics",
       org: "Universitas Islam Indonesia, Yogyakarta, Indonesia",
-      period: "Education · 2023 – 2027",
+      period: "Education · 2023 – Present",
       points: [
         "Foundation in web development, databases, UI/UX design and project management through semester team projects.",
       ],
