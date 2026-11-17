@@ -1,0 +1,287 @@
+/* ============================================================
+   FRONT: the normal portfolio that sits above the OS.
+   State lives on <html data-front="on|off">, set before first paint
+   in index.html and flipped by front.js. data-state stays owned by os.js.
+   Step 2: static layout. Motion arrives in step 3+, so nothing here
+   animates beyond small CSS hover transitions.
+   ============================================================ */
+
+/* ================= STATE ================= */
+
+/* While the front is on, the document scrolls (style.css locks it for the OS). */
+html[data-front="on"],
+html[data-front="on"] body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* The OS stays visible underneath but must not take input.
+   The `*` is required: .screen sets pointer-events:auto on itself,
+   which would override a plain `none` on .os. */
+html[data-front="on"] .os,
+html[data-front="on"] .os * {
+  pointer-events: none !important;
+}
+
+.front {
+  position: relative;
+  z-index: 10;            /* above .os (fixed, no z-index); below toasts 8000, modals 8500, cursor 9100 */
+  /* transparent on purpose: the curtain at the bottom must show the OS through it */
+}
+
+html[data-front="off"] .front { display: none; }
+
+/* Phones keep the existing plain #mobile page. */
+@media (max-width: 760px) {
+  .front { display: none !important; }
+}
+
+/* ================= TOKENS (front only) ================= */
+.front {
+  --f-pad: clamp(24px, 5vw, 72px);
+  --f-max: 1440px;
+  --f-radius: clamp(28px, 4vw, 56px);
+  color: var(--text);
+}
+.front a { color: inherit; text-decoration: none; }
+.front :focus-visible { outline: 1px solid var(--you); outline-offset: 4px; border-radius: 4px; }
+
+.f-k {
+  margin: 0;
+  font: 400 12px/1 var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ================= SKIP LINK ================= */
+.f-skip {
+  position: fixed; left: 16px; top: 12px; z-index: 30;
+  padding: 10px 14px; border-radius: 20px;
+  font: 400 12px/1 var(--mono); letter-spacing: .08em;
+  background: var(--bg-surface); border: 1px solid var(--hairline-2);
+  transform: translateY(-160%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.f-skip:focus { transform: none; }
+
+/* ================= NAV ================= */
+.f-nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px;
+  padding: 24px var(--f-pad);
+  font: 500 14px/1 var(--sans);
+  mix-blend-mode: difference;           /* stays legible over any section */
+  color: #fff;
+  transition: opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out);
+}
+html.f-revealing .f-nav { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+.f-brand { justify-self: start; letter-spacing: .01em; }
+.f-brand-c { display: inline-block; transition: transform .6s var(--ease-out); }
+.f-brand:hover .f-brand-c { transform: rotate(360deg); }
+.f-time { margin: 0; font: 400 12px/1 var(--mono); letter-spacing: .1em; opacity: .75; }
+.f-time-place { text-transform: uppercase; }
+.f-links { justify-self: end; display: flex; gap: clamp(16px, 2.4vw, 36px); }
+.f-links a { position: relative; padding: 6px 0; }
+.f-links a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease-out);
+}
+.f-links a:hover::after, .f-links a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+
+/* ================= PAGE ================= */
+.f-page {
+  position: relative;
+  background: var(--bg);
+  /* rounded bottom edge: the OS appears beneath this lip as the curtain lifts */
+  border-radius: 0 0 var(--f-radius) var(--f-radius);
+  /* page and OS share the same near-black, so a shadow alone is invisible:
+     a hairline traces the curved lip, the shadow adds depth over the lit desktop */
+  border-bottom: 1px solid var(--hairline-2);
+  box-shadow: 0 1px 0 rgba(201, 112, 74, .18), 0 40px 80px -20px rgba(0, 0, 0, .8);
+  overflow: hidden;
+}
+.f-page > section, .f-page > footer {
+  max-width: var(--f-max);
+  margin: 0 auto;
+  padding-left: var(--f-pad);
+  padding-right: var(--f-pad);
+}
+.f-page > section, .f-page > footer { scroll-margin-top: 72px; }   /* anchor jumps clear the fixed nav */
+.f-sec-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 18px; margin-bottom: 8px;
+  border-bottom: 1px solid var(--hairline-2);
+}
+
+/* ================= HERO ================= */
+.f-hero {
+  min-height: 100vh; min-height: 100svh;
+  display: grid; grid-template-rows: auto 1fr auto;
+  padding-top: 110px; padding-bottom: 40px;
+}
+.f-hero-top { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.f-eyebrow { margin: 0; font: 400 13px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-soft); }
+.f-badge {
+  margin: 0; display: inline-flex; align-items: center; gap: 10px;
+  font: 400 12px/1 var(--mono); letter-spacing: .08em; color: var(--text-soft);
+  padding: 9px 14px; border: 1px solid var(--hairline-2); border-radius: 20px;
+}
+.f-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--you); box-shadow: 0 0 0 4px var(--you-dim); }
+
+.f-name { margin: 0; align-self: center; font-family: var(--serif); font-weight: 500; line-height: .9; letter-spacing: -.02em; }
+.f-name-line { display: block; }
+.f-name-first { font-size: clamp(5rem, 17vw, 17rem); }
+.f-name-rest { font-size: clamp(1.6rem, 4.2vw, 4.2rem); font-style: italic; color: var(--text-soft); padding-left: .35em; line-height: 1.1; margin-top: clamp(.9rem, 3.4vw, 3.4rem); /* clears the descender of the giant first line */ }
+
+.f-hero-bottom {
+  display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 32px; align-items: end;
+  padding-top: 28px; border-top: 1px solid var(--hairline);
+}
+.f-tagline { margin: 0; max-width: 46ch; font-size: clamp(1rem, 1.3vw, 1.15rem); color: var(--text-soft); }
+.f-roles { list-style: none; margin: 0; padding: 0; font: 400 12px/1.9 var(--mono); letter-spacing: .06em; color: var(--text-muted); }
+.f-cue { margin: 0; display: flex; align-items: center; gap: 10px; font: 400 11px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); }
+.f-cue-line { display: block; width: 1px; height: 40px; background: var(--text-muted); }
+
+/* ================= STATEMENT ================= */
+.f-statement {
+  display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: end;
+  padding-top: clamp(96px, 16vh, 200px); padding-bottom: clamp(96px, 16vh, 200px);
+}
+.f-statement-text { margin: 0; font: 500 clamp(1.9rem, 4.2vw, 4rem)/1.12 var(--serif); letter-spacing: -.01em; }
+.f-statement-side { margin: 0; color: var(--text-soft); font-size: 15px; max-width: 34ch; }
+
+/* ================= WORK ================= */
+.f-work { padding-top: 40px; padding-bottom: clamp(96px, 14vh, 180px); }
+.f-rows { list-style: none; margin: 0; padding: 0; }
+.f-row { border-bottom: 1px solid var(--hairline-2); }
+.f-row-link {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: grid; grid-template-columns: 56px minmax(0, 1.4fr) minmax(0, 1fr) 32px; gap: 24px; align-items: center;
+  padding: clamp(28px, 4vw, 48px) 8px;
+}
+.f-row-fill {
+  position: absolute; inset: 0; z-index: -1; background: var(--bg-surface);
+  transform: translateY(101%); transition: transform .6s var(--ease-inout);
+}
+.f-row-n { font: 400 12px/1 var(--mono); color: var(--text-muted); }
+.f-row-main { display: grid; gap: 8px; transition: transform .6s var(--ease-out); }
+.f-row-title { font: 500 clamp(2rem, 4.6vw, 4.4rem)/1 var(--serif); letter-spacing: -.01em; }
+.f-row-sub { color: var(--text-soft); font-size: 15px; }
+.f-row-meta { display: grid; gap: 12px; justify-items: start; }
+.f-row-ctx { font: 400 12px/1.5 var(--mono); color: var(--text-muted); }
+.f-row-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+.f-row-stack span { font: 400 11px/1 var(--mono); padding: 6px 9px; border: 1px solid var(--hairline-2); border-radius: 20px; color: var(--text-soft); }
+.f-row-arrow { justify-self: end; font-size: 22px; color: var(--text-muted); transition: transform .5s var(--ease-out), color .3s; }
+
+/* hover: only for real pointers; the row lifts and its siblings dim */
+@media (hover: hover) and (pointer: fine) {
+  .f-rows:hover .f-row { opacity: .4; }
+  .f-rows .f-row { transition: opacity .4s var(--ease-out); }
+  .f-rows .f-row:hover { opacity: 1; }
+  .f-row:hover .f-row-fill { transform: none; }
+  .f-row:hover .f-row-main { transform: translateX(24px); }
+  .f-row:hover .f-row-arrow { transform: translate(4px, -4px); color: var(--you); }
+}
+
+/* ================= MARQUEE ================= */
+.f-page > .f-marquee { max-width: none; padding: clamp(40px, 8vh, 96px) 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+.f-mq-row { overflow: hidden; white-space: nowrap; }
+.f-mq-track { display: inline-flex; }
+.f-mq-chunk { display: inline-flex; align-items: center; gap: .5em; padding-right: .5em; }
+.f-mq-a { font: 500 clamp(3rem, 8vw, 8rem)/1.05 var(--serif); }
+.f-mq-b { font: italic 500 clamp(1.8rem, 4vw, 4rem)/1.2 var(--serif); color: var(--text-muted); }
+.f-mq-b .f-mq-track { transform: translateX(-25%); }    /* static offset; step 3 replaces with motion */
+.f-mq-sep { font-size: .35em; color: var(--you); }
+
+/* ================= EXPERIENCE ================= */
+.f-exp { padding-top: clamp(96px, 14vh, 180px); padding-bottom: clamp(96px, 14vh, 180px); }
+.f-timeline-wrap { position: relative; }
+.f-timeline { list-style: none; margin: 0; padding: 24px 0 0 40px; display: grid; gap: clamp(40px, 6vh, 64px); }
+.f-timeline-line { position: absolute; left: 7px; top: 34px; bottom: 0; width: 1px; background: var(--hairline-2); transform-origin: top; }
+.f-tl-item { position: relative; display: grid; grid-template-columns: minmax(180px, .55fr) minmax(0, 1.6fr); column-gap: clamp(24px, 4vw, 64px); }
+.f-tl-dot { position: absolute; left: -40px; top: 6px; width: 15px; height: 15px; border-radius: 50%; border: 1px solid var(--me); background: var(--bg); }
+.f-tl-period { grid-column: 1; margin: 0; font: 400 12px/1.6 var(--mono); letter-spacing: .06em; color: var(--text-muted); }
+.f-tl-role { grid-column: 2; margin: 0; font: 500 clamp(1.4rem, 2.2vw, 2rem)/1.15 var(--serif); }
+.f-tl-org { grid-column: 2; margin: 6px 0 0; color: var(--text-soft); font-size: 15px; }
+.f-tl-points { grid-column: 2; margin: 14px 0 0; padding-left: 18px; color: var(--text-soft); font-size: 15px; }
+.f-tl-points li + li { margin-top: 6px; }
+
+/* ================= ABOUT ================= */
+.f-about { padding-top: 40px; padding-bottom: clamp(96px, 14vh, 180px); }
+.f-about-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); padding-top: 40px; }
+.f-about-text p { margin: 0 0 1.1em; font-size: clamp(1.05rem, 1.4vw, 1.25rem); color: var(--text-soft); max-width: 60ch; }
+.f-about-text p:first-child { font: 500 clamp(1.4rem, 2.2vw, 1.9rem)/1.3 var(--serif); color: var(--text); }
+.f-loc { font: 400 12px/1 var(--mono) !important; letter-spacing: .08em; color: var(--text-muted) !important; }
+.f-stats { margin: 0; display: grid; gap: 28px; align-content: start; }
+.f-stat { display: grid; gap: 4px; padding-bottom: 20px; border-bottom: 1px solid var(--hairline); }
+.f-stat dt { font: 400 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); order: 2; }
+.f-stat dd { margin: 0; font: 500 clamp(3rem, 6vw, 5.5rem)/1 var(--serif); color: var(--you); order: 1; }
+.f-skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-top: clamp(64px, 10vh, 120px); }
+.f-skill h4 { margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--hairline-2); font: 400 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+.f-skill ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px; color: var(--text-soft); }
+
+/* ================= CONTACT ================= */
+.f-contact { padding-top: clamp(96px, 16vh, 200px); padding-bottom: 48px; border-top: 1px solid var(--hairline); }
+.f-contact-title { margin: 20px 0 0; font: 500 clamp(2.4rem, 6vw, 6rem)/1 var(--serif); letter-spacing: -.02em; }
+.f-email {
+  display: inline-block; margin-top: clamp(32px, 6vh, 64px);
+  font: 500 clamp(1.8rem, 5.4vw, 5.6rem)/1.1 var(--serif); color: var(--you);
+  overflow-wrap: anywhere;
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 2px;
+  transition: background-size .6s var(--ease-out);
+}
+.f-email:hover, .f-email:focus-visible { background-size: 100% 2px; }
+.f-contact-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; margin-top: clamp(40px, 8vh, 80px); padding-top: 28px; border-top: 1px solid var(--hairline); }
+.f-socials { display: flex; gap: 28px; font-size: 15px; color: var(--text-soft); }
+.f-socials a:hover { color: var(--text); }
+
+.f-btn {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 18px 30px; border-radius: 999px; border: 1px solid var(--hairline-2);
+  background: none; color: var(--text); cursor: pointer;
+  font: 500 15px/1 var(--sans);
+}
+.f-btn-fill {
+  position: absolute; inset: -1px; z-index: -1; border-radius: inherit; background: var(--you);
+  transform: translateY(76%) scale(1.2); transform-origin: bottom; opacity: 0;
+  transition: transform .6s var(--ease-inout), opacity .3s;
+}
+.f-btn:hover .f-btn-fill, .f-btn:focus-visible .f-btn-fill { transform: none; opacity: 1; }
+.f-btn:hover, .f-btn:focus-visible { color: var(--bg); border-color: var(--you); }
+.f-btn-text { position: relative; transition: color .3s; }
+
+.f-portal { display: grid; justify-items: center; gap: 16px; margin-top: clamp(80px, 14vh, 160px); text-align: center; }
+.f-btn-portal { padding: 26px 44px; font-size: 17px; }
+.f-portal-note { margin: 0; font: 400 12px/1 var(--mono); letter-spacing: .1em; color: var(--text-muted); }
+.f-copy { margin: clamp(64px, 10vh, 120px) 0 0; font: 400 12px/1 var(--mono); color: var(--text-ghost); }
+
+/* ================= CURTAIN ================= */
+/* Transparent 100vh spacer. Scrolling through it reveals the fixed OS beneath.
+   When its top reaches the viewport top, front.js hands off to the OS. */
+.f-curtain { height: 100vh; height: 100svh; background: none; pointer-events: none; }
+
+/* ================= MID-WIDTH (761 to 1024px) ================= */
+@media (max-width: 1024px) {
+  .f-nav { grid-template-columns: 1fr auto; }
+  .f-time { display: none; }
+  .f-hero-bottom { grid-template-columns: 1fr auto; }
+  .f-roles { display: none; }
+  .f-statement { grid-template-columns: 1fr; }
+  .f-row-link { grid-template-columns: 40px minmax(0, 1fr) 24px; }
+  .f-row-meta { grid-column: 2; }
+  .f-row-arrow { grid-column: 3; grid-row: 1; }
+  .f-tl-item { grid-template-columns: 1fr; }
+  .f-tl-period, .f-tl-role, .f-tl-org, .f-tl-points { grid-column: 1; }
+  .f-tl-period { margin-bottom: 8px; }
+  .f-about-grid { grid-template-columns: 1fr; }
+  .f-stats { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ================= REDUCED MOTION ================= */
+@media (prefers-reduced-motion: reduce) {
+  .front *, .front *::before, .front *::after { transition-duration: .01ms !important; }
+}

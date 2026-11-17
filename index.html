@@ -17,10 +17,15 @@
         // Returning visitor? Skip straight past sleep + sign-in.
         var booted = localStorage.getItem("nonos.booted") === "1";
         // Deep links (#projects, #about, #experience) skip sleep + sign-in, e.g. for a link on the CV.
-        var deep = /^#(projects|about|experience)$/.test(location.hash);
+        var deep = /^#(projects|about|experience|desktop)$/.test(location.hash);
         root.setAttribute("data-state", booted || deep ? "desktop" : "sleep");
+        // Front portfolio: shown first to everyone (new and returning) on wide screens.
+        // Deep links and #desktop go straight to the OS. Phones keep the plain #mobile page.
+        var wide = matchMedia("(min-width: 761px)").matches;
+        root.setAttribute("data-front", wide && !deep ? "on" : "off");
       } catch (e) {
         root.setAttribute("data-state", "sleep");
+        root.setAttribute("data-front", "off");
       }
     })();
   </script>
@@ -28,11 +33,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=12" />
+  <link rel="stylesheet" href="front.css?v=4" />
 </head>
 <body>
   <!-- ambient layers -->
   <div class="grain" aria-hidden="true"></div>
   <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+  <!-- ================= FRONT: normal portfolio, sits above the OS (front.js) ================= -->
+  <div class="front" id="front"></div>
 
   <!-- ================= OS ================= -->
   <div class="os" id="os">
@@ -109,6 +118,7 @@
 
   <script src="content.js?v=12"></script>
   <script src="portfolio.js?v=11"></script>
+  <script src="front.js?v=2"></script> <!-- must load before os.js: its keydown guard has to register first -->
   <script src="os.js?v=12"></script>
 </body>
 </html>
