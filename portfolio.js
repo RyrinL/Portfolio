@@ -130,7 +130,23 @@
     <section class="pf-sec" id="m-exp" data-accent="me"><p class="pf-sec-k rv">Experience & education</p>${timeline()}</section>
     <div id="m-about">${aboutBody()}</div>`;
 
-  const VIEWS = { projects, about, experience };
+  /* ---- Hobbies (desktop dock app): window.PORTFOLIO.hobbies ---- */
+  const hobbies = () => {
+    const list = (D.hobbies || []).filter((h) => h && h.name);
+    const cards = list.map((h, n) => `
+      <article class="pf-hobby rv" style="--d:${(n % 2) * 70}ms">
+        ${h.glyph ? `<span class="pf-hobby-glyph" aria-hidden="true">${esc(h.glyph)}</span>` : ""}
+        <h3 class="pf-hobby-name">${esc(h.name)}</h3>
+        ${h.since ? `<p class="pf-hobby-since">${esc(h.since)}</p>` : ""}
+        ${h.blurb ? `<p class="pf-hobby-blurb">${esc(h.blurb)}</p>` : ""}
+        ${(h.details || []).length ? `<ul class="pf-hobby-details">${h.details.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>` : ""}
+        ${h.link && h.link.url ? `<a class="pf-hobby-link" href="${safeUrl(h.link.url)}" target="_blank" rel="noopener">${esc(h.link.label || "more")} ↗</a>` : ""}
+      </article>`).join("");
+    return head("Off the clock", "Hobbies", D.hobbiesIntro || "") +
+      `<section class="pf-sec" data-accent="you">${cards ? `<div class="pf-hobbies">${cards}</div>` : `<p class="pf-hobby-empty rv">Nothing here yet.</p>`}</section>`;
+  };
+
+  const VIEWS = { projects, about, experience, hobbies };
 
   function render(scrollEl, section) {
     const view = VIEWS[section] || about;

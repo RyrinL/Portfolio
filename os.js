@@ -279,7 +279,8 @@
   // The hidden way in: every app deleted, the date set to the secret day,
   // and then the Bin itself refused deletion enough times.
   let secretPlaying = false;
-  const deskEmpty = () => apps().filter((a) => a.kind !== "bin").every((a) => S.gone.has(a.id));
+  // only apps that sit on the desktop can be binned; dock-only apps (desktop:false, e.g. Hobbies) must not block this
+  const deskEmpty = () => apps().filter((a) => a.kind !== "bin" && a.desktop !== false).every((a) => S.gone.has(a.id));
   const isArmed = () => {
     if (!SECRET) return false;
     const d = sysNow();
@@ -363,7 +364,7 @@
   };
 
   /* ========== OPENERS ========== */
-  const PF = { "pf-projects": ["Projects", 960, "projects"], "pf-about": ["About", 860, "about"], "pf-experience": ["Experience", 800, "experience"] };
+  const PF = { "pf-projects": ["Projects", 960, "projects"], "pf-about": ["About", 860, "about"], "pf-experience": ["Experience", 800, "experience"], "pf-hobbies": ["Hobbies", 820, "hobbies"] };
   const appByKind = (k) => apps().find((x) => x.kind === k);
   const downloadCV = () => {
     const url = (window.PORTFOLIO || {}).resumeUrl; if (!url) return;

@@ -34,6 +34,19 @@ window.PORTFOLIO = {
   archiveNote: "Hobbies, notes and the rest of me.",        // small line under the button
   archiveAboutLink: "There's more of me in the archive",    // quieter link at the end of About
 
+  // --- Hobbies (the "Hobbies" app in the desktop dock) -------
+  // PLACEHOLDERS: replace the [ ... ] parts with your own. Add or remove entries freely.
+  //   name    required. glyph: one symbol shown above it (optional)
+  //   since   optional small line, e.g. "since 2019"
+  //   blurb   a sentence or two
+  //   details optional list of short lines
+  //   link    optional { label: "playlist", url: "https://..." }
+  hobbiesIntro: "[ one line about what you do when nothing is due ]",
+  hobbies: [
+    { name: "[ hobby ]", glyph: "✿", since: "", blurb: "[ a sentence or two about it ]", details: [], link: null },
+    { name: "[ another hobby ]", glyph: "♫", since: "", blurb: "[ a sentence or two about it ]", details: [], link: null },
+  ],
+
   // --- Projects -----------------------------------------------
   // Each project is one full-screen panel.
   //   short     - optional shorter name for the project index
@@ -236,6 +249,7 @@ window.OS = {
   // Visitors can drag notes around; they go back to these places on reload.
   notes: [
     { text: "working on thesis", date: "Nov 2026", color: "yellow" },
+    { text: "Looking for internship", date: "Nov 2026", color: "blue" },
   ],
 
   // --- The date that keeps surfacing ------------------------
@@ -256,6 +270,7 @@ window.OS = {
     { id: "projects",   name: "Projects",   glyph: "◱", kind: "pf-projects" },
     { id: "about",      name: "About",      glyph: "◎", kind: "pf-about" },
     { id: "experience", name: "Experience", glyph: "☰", kind: "pf-experience" },
+    { id: "hobbies",    name: "Hobbies",    glyph: "✿", kind: "pf-hobbies", desktop: false },   // dock only; content: PORTFOLIO.hobbies
     { id: "cv",         name: "CV.pdf",     glyph: "⎙", kind: "download", dock: false },
     { id: "terminal",   name: "Terminal",   glyph: "›_", kind: "terminal" },
     { id: "bin",        name: "Bin",        glyph: "⌫", kind: "bin" },

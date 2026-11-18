@@ -673,3 +673,21 @@ html.has-cursor .icon.dragging { cursor: none; }
   .mobile .pf-proj .pf-art { position: static; }
   .mobile .pf-links { gap: 16px 20px; }
 }
+
+/* ---------- HOBBIES (desktop dock app, rendered by portfolio.js from PORTFOLIO.hobbies) ---------- */
+.pf-hobbies { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.pf-hobby {
+  position: relative; padding: 24px 22px 22px;
+  border: 1px solid var(--hairline); border-radius: 10px; background: var(--bg-surface);
+  transition: border-color .3s, transform .4s var(--ease-out);
+}
+.pf-hobby:hover { border-color: var(--accent); transform: translateY(-2px); }
+.pf-hobby-glyph { display: block; margin-bottom: 14px; font-size: 22px; line-height: 1; color: var(--accent); }
+.pf-hobby-name { margin: 0; font: 500 1.45rem/1.15 var(--serif); }
+.pf-hobby-since { margin: 6px 0 0; font: 400 11.5px/1.4 var(--mono); letter-spacing: .06em; color: var(--text-muted); }
+.pf-hobby-blurb { margin: 12px 0 0; font-size: 14.5px; color: var(--text-soft); }
+.pf-hobby-details { margin: 12px 0 0; padding-left: 16px; font-size: 13.5px; color: var(--text-soft); }
+.pf-hobby-details li + li { margin-top: 4px; }
+.pf-hobby-link { display: inline-block; margin-top: 14px; font: 500 13px/1 var(--sans); color: var(--accent); }
+.pf-hobby-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.pf-hobby-empty { color: var(--text-muted); font: 400 13px/1.6 var(--mono); }
